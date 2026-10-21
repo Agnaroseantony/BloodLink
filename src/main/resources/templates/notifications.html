@@ -1,0 +1,10 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Notifications')}"></head>
+<body th:attr="data-donor=${!isHospital}"><div class="app-shell"><aside th:replace="~{fragments :: sidebar}"></aside><main class="main"><header th:replace="~{fragments :: topbar('Notifications')}"></header><div class="content"><div th:replace="~{fragments :: notice}"></div>
+
+<div class="page-heading"><div><p class="eyebrow">STAY CONNECTED</p><h1>Your community is calling.</h1><p>Alerts match your blood group and selected city. They arrive while you use the application.</p></div><form th:if="${!#lists.isEmpty(alerts)}" th:action="@{/donor/notifications/read-all}" method="post"><button class="button secondary" type="submit">✓ Mark all as read</button></form></div><div class="poll-note" data-poll-status role="status">Checking for new alerts every 20 seconds.</div>
+<section class="glass panel"><div th:if="${#lists.isEmpty(alerts)}" class="empty-state"><span class="empty-icon">♧</span><h3>You’re all caught up</h3><p>New matching requests will appear here. Check your city, blood group and preferences in your profile.</p><a class="text-link" th:href="@{/donor/profile}">Manage alert preferences ↗</a></div><form class="notification-row" th:each="a : ${alerts}" th:classappend="${!a.seen ? 'unread' : ''}" th:action="@{/donor/notifications/{id}/read(id=${a.id})}" method="post"><span class="blood-type small-type" th:text="${a.request.bloodGroup.label}"></span><div><strong th:text="${a.request.hospital.name + ' published a blood request'}"></strong><p th:text="${a.request.unitsRequested + ' units · ' + a.request.hospital.city + ' · ' + a.request.urgency}"></p><small th:text="${#temporals.format(a.createdAt, 'dd MMM yyyy, hh:mm a') + ' IST'}"></small></div><span class="badge" th:if="${!a.seen}">New</span><button class="text-button" type="submit">Open request ↗</button></form></section>
+
+</div><footer th:replace="~{fragments :: footer}"></footer></main></div><div class="live-toast" role="status" aria-live="polite"></div></body></html>
+

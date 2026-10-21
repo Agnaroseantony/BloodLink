@@ -1,0 +1,9 @@
+# Upload only build inputs, never local toolchains, databases, logs or secrets.
+*
+!pom.xml
+!Dockerfile.vercel
+!.dockerignore
+!vercel.json
+!src/
+!src/main/
+!src/main/**

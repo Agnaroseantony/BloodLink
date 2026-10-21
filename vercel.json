@@ -1,0 +1,8 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "env": {
+    "PORT": "8080",
+    "SPRING_PROFILES_ACTIVE": "vercel"
+  }
+}

@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Blood requests')}"></head>
+<body th:attr="data-donor=${!isHospital}"><div class="app-shell"><aside th:replace="~{fragments :: sidebar}"></aside><main class="main"><header th:replace="~{fragments :: topbar('Blood requests')}"></header><div class="content"><div th:replace="~{fragments :: notice}"></div>
+
+<div class="page-heading"><div><p class="eyebrow">EVERY REQUEST IS A CHANCE TO HELP</p><h1 th:text="${isHospital ? 'Your blood requests.' : 'Find your next act of kindness.'}"></h1><p th:text="${isHospital ? 'Manage your hospital’s requests and follow their progress.' : 'Explore hospital needs and let them know when you’re available.'}"></p></div><a th:if="${isHospital}" class="button" th:href="@{/hospital/requests/new}">＋ Create request</a></div>
+<form class="filters glass" th:action="@{/requests}" method="get"><label>Blood group<select name="bloodGroup"><option value="">All blood groups</option><option th:each="g : ${groups}" th:value="${g}" th:text="${g.label}" th:selected="${g == selectedGroup}"></option></select></label><label>City<input name="city" th:value="${cityFilter}" placeholder="Search a city" maxlength="80"></label><label>Urgency<select name="urgency"><option value="">Any urgency</option><option th:each="u : ${urgencies}" th:value="${u}" th:text="${u}" th:selected="${u == selectedUrgency}"></option></select></label><label>Status<select name="status"><option value="ACTIVE" th:selected="${selectedStatus == 'ACTIVE'}">Accepting responses</option><option value="ALL" th:selected="${selectedStatus == 'ALL'}">All statuses</option><option th:each="s : ${statuses}" th:value="${s}" th:text="${s.label}" th:selected="${s.name() == selectedStatus}"></option></select></label><button class="button" type="submit">Apply filters</button><a class="text-link" th:href="@{/requests}">Reset</a></form>
+<div class="section-heading compact"><p><strong th:text="${#lists.size(requests)}"></strong> requests found</p><span class="muted" th:unless="${isHospital}">Distances, when available, are approximate.</span></div>
+<div th:replace="~{fragments :: requestCards(${requests})}"></div>
+
+</div><footer th:replace="~{fragments :: footer}"></footer></main></div><div class="live-toast" role="status" aria-live="polite"></div></body></html>
+

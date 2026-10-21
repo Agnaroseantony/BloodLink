@@ -1,0 +1,10 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('My responses')}"></head>
+<body th:attr="data-donor=${!isHospital}"><div class="app-shell"><aside th:replace="~{fragments :: sidebar}"></aside><main class="main"><header th:replace="~{fragments :: topbar('My responses')}"></header><div class="content"><div th:replace="~{fragments :: notice}"></div>
+
+<div class="page-heading"><div><p class="eyebrow">YOU SHOWED UP</p><h1>Your connections.</h1><p>Track the requests you’ve responded to. Interest becomes a donation only after hospital confirmation.</p></div><a class="button secondary" th:href="@{/requests}">Explore requests ↗</a></div>
+<section class="glass panel"><div class="empty-state" th:if="${#lists.isEmpty(responses)}"><span class="empty-icon">↗</span><h3>Your first connection starts here</h3><p>When you respond to a request, it will appear here.</p><a class="button" th:href="@{/requests}">Find a request</a></div><a class="history-row" th:each="r : ${responses}" th:href="@{/requests/{id}(id=${r.request.id})}"><span class="blood-type small-type" th:text="${r.request.bloodGroup.label}"></span><div><strong th:text="${r.request.hospital.name}"></strong><small th:text="${r.request.hospital.city + ' · Responded ' + #temporals.format(r.respondedAt, 'dd MMM yyyy')}"></small></div><span class="badge" th:text="${r.status}" th:classappend="${r.status.name() == 'CONFIRMED' ? 'fulfilled' : 'open'}"></span><span>↗</span></a></section>
+
+</div><footer th:replace="~{fragments :: footer}"></footer></main></div><div class="live-toast" role="status" aria-live="polite"></div></body></html>
+

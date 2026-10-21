@@ -1,0 +1,10 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Hospital profile')}"></head>
+<body th:attr="data-donor=${!isHospital}"><div class="app-shell"><aside th:replace="~{fragments :: sidebar}"></aside><main class="main"><header th:replace="~{fragments :: topbar('Hospital profile')}"></header><div class="content"><div th:replace="~{fragments :: notice}"></div>
+
+<div class="page-heading"><div><p class="eyebrow">A PLACE FOR CARE</p><h1>Your hospital profile.</h1><p>Help donors find the right place and get in touch.</p></div></div>
+<form class="glass panel wide-form" th:action="@{/hospital/profile}" th:object="${form}" method="post"><div th:replace="~{fragments :: errors}"></div><h2>Hospital details</h2><div class="form-grid"><label>Hospital name<input th:field="*{name}" required maxlength="100"></label><label>Contact phone<input th:field="*{phone}" type="tel" required maxlength="20"></label><label class="full-width">Address<input th:field="*{address}" required maxlength="250"></label><label>City<input th:field="*{city}" required maxlength="80"></label></div><div th:replace="~{fragments :: locationFields(true)}"></div><div class="form-actions"><button class="button" type="submit">Save hospital profile ✓</button><a class="button secondary" th:href="@{/dashboard}">Back to overview</a></div></form>
+
+</div><footer th:replace="~{fragments :: footer}"></footer></main></div><div class="live-toast" role="status" aria-live="polite"></div></body></html>
+

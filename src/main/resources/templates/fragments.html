@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head(title)">
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#C62845"><meta name="description" content="BloodLink connects hospital blood requests with a community of donors.">
+  <title th:text="${title + ' · BloodLink'}">BloodLink</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 48'%3E%3Cpath fill='%23c62845' d='M20 1C16 12 2 24 2 31a18 18 0 0036 0C38 24 24 12 20 1Z'/%3E%3C/svg%3E">
+  <link rel="stylesheet" th:href="@{/vendor/leaflet/leaflet.css}"><link rel="stylesheet" th:href="@{/css/app.css}">
+  <script defer th:src="@{/vendor/leaflet/leaflet.js}"></script><script defer th:src="@{/js/app.js}"></script>
+</head>
+<body>
+<aside class="sidebar" id="sidebar" th:fragment="sidebar">
+  <a class="brand" th:href="@{/dashboard}"><span class="brand-mark">♥</span> BloodLink<span class="brand-dot">.</span></a>
+  <div class="workspace-label">YOUR COMMUNITY OF CARE</div>
+  <div class="role-pill"><span class="live-dot"></span><span th:text="${isHospital ? 'Hospital workspace' : 'Donor workspace'}"></span></div>
+  <nav aria-label="Main navigation">
+    <a th:href="@{/dashboard}" th:classappend="${path == '/dashboard' ? 'active' : ''}"><span class="nav-icon">▦</span> Overview</a>
+    <a th:href="@{/requests}" th:classappend="${#strings.startsWith(path, '/requests') ? 'active' : ''}"><span class="nav-icon">♡</span><span th:text="${isHospital ? 'Blood requests' : 'Explore requests'}"></span></a>
+    <a th:if="${isHospital}" th:href="@{/hospital/requests/new}" th:classappend="${path == '/hospital/requests/new' ? 'active' : ''}"><span class="nav-icon">＋</span> Create a request</a>
+    <a th:unless="${isHospital}" th:href="@{/donor/responses}" th:classappend="${path == '/donor/responses' ? 'active' : ''}"><span class="nav-icon">↗</span> My responses</a>
+    <a th:unless="${isHospital}" th:href="@{/donor/rewards}" th:classappend="${path == '/donor/rewards' ? 'active' : ''}"><span class="nav-icon">☆</span> Rewards &amp; history</a>
+    <a th:unless="${isHospital}" th:href="@{/donor/notifications}" th:classappend="${path == '/donor/notifications' ? 'active' : ''}"><span class="nav-icon">♧</span> Notifications <span class="count" data-unread th:text="${unreadCount}"></span></a>
+    <div class="nav-divider"></div>
+    <a th:href="${isHospital ? '/hospital/profile' : '/donor/profile'}" th:classappend="${#strings.endsWith(path, '/profile') ? 'active' : ''}"><span class="nav-icon">☷</span> My profile</a>
+  </nav>
+  <div class="sidebar-note"><span class="tiny-heart">♥</span><h3>Every connection counts.</h3><p>A little of your time can mean a world of difference.</p></div>
+  <div class="sidebar-user"><span class="avatar" th:text="${#strings.substring(displayName,0,1)}">A</span><div><strong th:text="${displayName}"></strong><small th:text="${profile.city}"></small></div></div>
+  <form th:action="@{/logout}" method="post"><button class="logout" type="submit">↪ Sign out</button></form>
+</aside>
+<header class="topbar" th:fragment="topbar(title)">
+  <div class="topbar-left"><button class="menu-toggle" type="button" aria-label="Toggle navigation" aria-controls="sidebar" aria-expanded="false">☰</button><span class="breadcrumb">Workspace <span>/</span> <strong th:text="${title}"></strong></span></div>
+  <div class="topbar-right"><span class="local-label"><span class="live-dot"></span> Connected by kindness</span><a th:unless="${isHospital}" class="bell" th:href="@{/donor/notifications}" aria-label="Notifications">♧ <span data-unread th:text="${unreadCount}"></span></a><span class="avatar small" th:text="${#strings.substring(displayName,0,1)}"></span></div>
+</header>
+<div th:fragment="notice"><div class="alert success" th:if="${success}" role="status"><span>✓</span><span th:text="${success}"></span></div></div>
+<footer class="footer" th:fragment="footer"><span>BloodLink <span class="red">♥</span> A community connected by care.</span><span>Student demonstration · All times IST</span></footer>
+<div class="form-errors" th:fragment="errors" th:if="${#fields.hasAnyErrors()}" role="alert"><strong>Please check the following:</strong><ul><li th:each="error : ${#fields.allErrors()}" th:text="${error}"></li></ul></div>
+
+<div th:fragment="requestCards(items)" class="request-grid">
+  <article class="request-card glass" th:each="r : ${items}">
+    <div class="card-top"><span class="blood-type" th:text="${r.bloodGroup.label}"></span><div class="card-badges"><span class="badge urgent" th:if="${r.urgency.name() == 'URGENT'}">● Urgent</span><span class="badge" th:classappend="${#strings.toLowerCase(r.displayStatus.name())}" th:text="${r.displayStatus.label}"></span></div></div>
+    <h3 th:text="${r.hospital.name}"></h3><p class="location"><span>⌖</span> <span th:text="${r.hospital.city}"></span><span th:if="${!isHospital and distances[r.id] != null}" th:text="${' · ≈ ' + distances[r.id] + ' km'}"></span></p>
+    <div class="progress-label"><span><strong th:text="${r.confirmedUnits}"></strong> / <span th:text="${r.unitsRequested}"></span> units confirmed</span><strong th:text="${r.progressPercent + '%'}"></strong></div>
+    <progress th:value="${r.confirmedUnits}" th:max="${r.unitsRequested}" aria-label="Confirmed donation units"></progress>
+    <div class="deadline">◷ <span th:text="${'Needed by ' + #temporals.format(r.requiredBy, 'dd MMM, hh:mm a')}"></span></div>
+    <a class="card-link" th:href="@{/requests/{id}(id=${r.id})}"><span th:text="${isHospital ? 'Manage request' : 'View request'}"></span><span>↗</span></a>
+  </article>
+  <div class="empty-state glass" th:if="${#lists.isEmpty(items)}"><span class="empty-icon">♡</span><h3>No requests here yet</h3><p th:text="${isHospital ? 'Publish a blood request to connect with donors in your community.' : 'Try another filter, or check back when hospitals publish new requests.'}"></p><a class="button secondary" th:href="${isHospital ? '/hospital/requests/new' : '/requests?status=ALL'}" th:text="${isHospital ? 'Create a request' : 'View all requests'}"></a></div>
+</div>
+
+<div th:fragment="donorFields" class="form-grid">
+  <label>Full name <input th:field="*{fullName}" required maxlength="80" autocomplete="name" placeholder="Your full name"></label>
+  <label>Date of birth <input type="date" th:field="*{dateOfBirth}" required autocomplete="bday"><small>Hospital screening determines donation eligibility.</small></label>
+  <label>Blood group <select th:field="*{bloodGroup}" required><option value="">Select your blood group</option><option th:each="group : ${groups}" th:value="${group}" th:text="${group.label}"></option></select></label>
+  <label>Phone number <input type="tel" th:field="*{phone}" required maxlength="20" autocomplete="tel" placeholder="+91 90000 00000"></label>
+  <label>Email <span class="optional">optional</span><input type="email" th:field="*{email}" maxlength="120" autocomplete="email" placeholder="you@example.com"></label>
+  <label>City <input th:field="*{city}" required maxlength="80" autocomplete="address-level2" placeholder="e.g. Bengaluru"><small>Alerts match your city and blood group.</small></label>
+  <label>Last donation date <span class="optional">optional</span><input type="date" th:field="*{lastDonationDate}"><small>Confirmed donation dates cannot be removed by editing.</small></label>
+  <label class="check-label"><input type="checkbox" th:field="*{notificationsEnabled}"><span>Receive matching in-app alerts<small>Alerts appear while you use BloodLink. No SMS or email is sent.</small></span></label>
+</div>
+<div th:fragment="locationFields(required)" class="location-fields">
+  <div class="section-heading compact"><div><h3>Pin your location <span class="optional" th:unless="${required}">optional</span></h3><p th:text="${required ? 'Click the map or enter the hospital coordinates.' : 'Used for approximate distances. Your precise location is private.'}"></p></div><button class="button secondary small-button" type="button" data-geolocate>⌖ Use my location</button></div>
+  <div class="form-grid"><label>Latitude <input type="number" step="any" min="-90" max="90" th:field="*{latitude}" th:required="${required}" placeholder="12.9716"></label><label>Longitude <input type="number" step="any" min="-180" max="180" th:field="*{longitude}" th:required="${required}" placeholder="77.5946"></label></div>
+  <div class="map" data-picker="true" th:attr="data-tile-url=${tileUrl},data-attribution=${mapAttribution},data-attribution-url=${mapAttributionUrl}" aria-label="Click to select a location">The interactive map requires JavaScript. You can enter coordinates above.</div>
+  <p class="map-status muted" aria-live="polite">Online map tiles require internet access. If unavailable, enter coordinates manually.</p>
+  <button th:unless="${required}" class="text-button" type="button" data-clear-location>Clear saved coordinates</button>
+</div>
+</body></html>

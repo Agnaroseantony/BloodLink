@@ -1,0 +1,10 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('My profile')}"></head>
+<body th:attr="data-donor=${!isHospital}"><div class="app-shell"><aside th:replace="~{fragments :: sidebar}"></aside><main class="main"><header th:replace="~{fragments :: topbar('My profile')}"></header><div class="content"><div th:replace="~{fragments :: notice}"></div>
+
+<div class="page-heading"><div><p class="eyebrow">MAKE IT PERSONAL</p><h1>Your donor profile.</h1><p>Keep your details up to date so hospitals can reach you after you respond.</p></div></div>
+<form class="glass panel wide-form" th:action="@{/donor/profile}" th:object="${form}" method="post"><div th:replace="~{fragments :: errors}"></div><h2>A little about you</h2><div th:replace="~{fragments :: donorFields}"></div><div th:replace="~{fragments :: locationFields(false)}"></div><div class="form-actions"><button type="submit" class="button">Save profile ✓</button><a th:href="@{/dashboard}" class="button secondary">Back to overview</a></div></form>
+
+</div><footer th:replace="~{fragments :: footer}"></footer></main></div><div class="live-toast" role="status" aria-live="polite"></div></body></html>
+
